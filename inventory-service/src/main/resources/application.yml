@@ -22,14 +22,17 @@ spring:
     consumer:
       group-id: inventory-group
       auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serializer.StringDeserializer
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "*"
+        # ✅ ADD THIS - Tells Kafka which class to deserialize into
+        spring.json.value.default.type: com.pro.inventory_service.dto.ProductEvent
+
 
 server:
   port: 8081
 
 logging:
   level:
-    com.pro.inventory-service
+    com.pro.inventory-service: DEBUG

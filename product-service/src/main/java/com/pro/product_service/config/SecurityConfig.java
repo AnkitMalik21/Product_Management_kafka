@@ -4,6 +4,7 @@ import com.pro.product_service.security.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;  // ✅ ADD THIS IMPORT
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -30,19 +31,28 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http
-                .csrf(csrf ->csrf.disable())
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login","/auth/register").permitAll()
+                        // ✅ PUBLIC endpoints
+                        .requestMatchers("/auth/**", "/test/**").permitAll()
+
+                        // ✅ ADMIN-only registration
                         .requestMatchers("/auth/admin/**").hasAuthority("ADMIN")
-                        .requestMatchers("/api/products").hasAnyAuthority("USER","ADMIN")
-                        .requestMatchers("/api/products/*").hasAnyAuthority("USER","ADMIN")
-                        .requestMatchers("/api/products/**").hasAuthority("ADMIN")//POST,PUT,DELETE
+
+                        // ✅ ADMIN ONLY - Create, Update, Delete (must be FIRST)
+                        .requestMatchers(HttpMethod.POST, "/api/products").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/products/**").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasAuthority("ADMIN")
+
+                        // ✅ USER + ADMIN - View products (must be LAST)
+                        .requestMatchers(HttpMethod.GET, "/api/products/**").hasAnyAuthority("USER", "ADMIN")
+
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-                return http.build();
+        return http.build();
     }
 
     @Bean

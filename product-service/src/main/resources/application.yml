@@ -35,4 +35,5 @@ server:
 logging:
   level:
     com.pro.product_service: DEBUG
-    org.springframework.security: DEBUG
+    org.springframework.security: TRACE  # ← Add this line
+    org.hibernate.SQL: DEBUG
