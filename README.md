@@ -70,4 +70,4 @@ bin\windows\kafka-topics.bat --create --topic product-events --bootstrap-server 
 | /api/products/{id}/quantity | PUT    | ❌    | ✅     | ❌      |
 | /api/products/{id}          | DELETE | ❌    | ✅     | ❌      |
 
-Future Upgrade Add Redis to the Project.
+
